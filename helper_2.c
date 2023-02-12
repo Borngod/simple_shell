@@ -9,6 +9,7 @@
  *
  *Return: The next available token
  */
+
 char *_strtok_r(char *string, char *delim, char **save_ptr)
 {
 	char *finish;
