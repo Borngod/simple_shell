@@ -7,7 +7,6 @@
  *
  *Return: array of tokens
  */
-
 char **tokenizer(char *input_string, char *delim)
 {
 	int num_delim = 0;
