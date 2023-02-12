@@ -5,7 +5,7 @@
  * @current_command: try to check current token
  * @type_command: parse token
  *
- * Return: void functio
+ * Return: void function
  */
 
 void initializer(char **current_command, int type_command)
