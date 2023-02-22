@@ -1,52 +1,83 @@
 #include "shell.h"
 
 /**
- * fork_wait_exec - executes commands by first forking a child process
- * then executing in that child while the parent process waits.
+ *_eputs - echos an input string
+ * @str: the string to be printed
  *
- * @commands: array of strings
- * commands[0] is command to execute
- * @path_array: array of directories in PATH
- * @env: array of environment variables
- * remaining strings are arguments to use with that command
- * @NAME: name of program
- * @user_input: input string
+ * Return: Nothing
  */
-void fork_wait_exec(char **commands, char **path_array, char **env,
-		    char *NAME, char *user_input)
+void _eputs(char *str)
 {
-	pid_t pid;
-	int status, exec_check;
+	int i = 0;
 
-	status = 0;
-	pid = fork();
-
-	if (pid == -1)
+	if (!str)
+		return;
+	while (str[i] != '\0')
 	{
-		perror(NAME);
-		exitcode = 1;
-		_exit(1);
+		_eputchar(str[i]);
+		i++;
 	}
+}
 
-	else if (pid == 0)
+/**
+ * _eputchar - writes the character c to stderr
+ * @c: The character to print
+ *
+ * Return: 1 On success.
+ */
+int _eputchar(char c)
+{
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
+
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
 	{
-		exec_check = execve(commands[0], commands, env);
-
-		if (exec_check < 0)
-		{
-			exec_error(NAME, commands[0]);
-			free_array(path_array);
-			free_array(commands);
-			free(user_input);
-			exitcode = 126;
-			_exit(126);
-		}
-
-		exitcode = 0;
-		_exit(0);
-
+		write(2, buf, i);
+		i = 0;
 	}
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
+	return (1);
+}
 
-	exitcode = 0;
-	wait(&status);
+/**
+ * _putfd - writes the character c to given fd
+ * @c: The character to print
+ * @fd: The filedescriptor to write to
+ *
+ * Return: On success 1.
+ */
+int _putfd(char c, int fd)
+{
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
+
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	{
+		write(fd, buf, i);
+		i = 0;
+	}
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
+	return (1);
+}
+
+/**
+ *_putsfd - prints an input string
+ * @str: the string to be printed
+ * @fd: the filedescriptor to write to
+ *
+ * Return: the number of chars put
+ */
+int _putsfd(char *str, int fd)
+{
+	int i = 0;
+
+	if (!str)
+		return (0);
+	while (*str)
+	{
+		i += _putfd(*str++, fd);
+	}
+	return (i);
 }
