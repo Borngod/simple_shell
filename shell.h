@@ -53,5 +53,4 @@ void print_env(char **env);
 
 /* splash screen */
 void display_splash_screen(FILE *file_ptr);
-
 #endif
