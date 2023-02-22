@@ -6,7 +6,6 @@
  *
  * Return: integer
  */
-
 int _atoi(char *s)
 {
 	unsigned int index, neg_counter, num;
