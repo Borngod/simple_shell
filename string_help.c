@@ -17,7 +17,6 @@ int _strlen(char *str)
 	return (len);
 }
 
-
 /**
  * _strcmp - compares two strings
  * @s1: first string
