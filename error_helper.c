@@ -6,7 +6,6 @@
  * @command: command not found
  *
  */
-
 void command_error(char *NAME, char *command)
 {
 	write(STDERR_FILENO, NAME, _strlen(NAME));
