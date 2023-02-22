@@ -1,81 +1,93 @@
 #include "shell.h"
 
 /**
- * arg_counter - count the number of arguments
- * @user_input: string of user input
+ * get_environ - string array copy of our environ
+ * @info: Structure containing potential arguments.
  *
- * Return: number of arguments
+ * Return: Always 0
  */
-int arg_counter(char *user_input)
+char **get_environ(info_t *info)
 {
-	int i, args, start;
-
-	args = 1;
-	i = 0;
-	start = 0;
-	while (user_input[i] != '\0' && user_input[i] != '\n')
+	if (!info->environ || info->env_changed)
 	{
-		if (user_input[i] != ' ')
-			start = 1;
-		if (user_input[i] == ' ' && user_input[i + 1] != ' '
-		    && user_input[i + 1] != '\n' && start == 1)
-			args++;
-		i++;
+		info->environ = list_to_strings(info->env);
+		info->env_changed = 0;
 	}
-	return (args);
+
+	return (info->environ);
 }
 
 /**
- * parse_input - parses user_input to create an array of strings
- * @user_input: string to tokenize
- * @path_array: array of directories in PATH
- * @NAME: name of program
+ * _unsetenv - Remove an environment variable
+ * @info: Structure containing potential arguments.
  *
- * Return: an array of arguments
+ *  Return: 1 on delete, 0 otherwise
+ * @var: the string env var property
  */
-
-char **parse_input(char *user_input, char **path_array, char *NAME)
+int _unsetenv(info_t *info, char *var)
 {
-	char **commands, *token, *dir_path = NULL;
-	int args = 1, i = 0;
+	list_t *node = info->env;
+	size_t i = 0;
+	char *p;
 
-	args = arg_counter(user_input);
-	commands = malloc(sizeof(char *) * (args + 1));
-	if (commands == NULL)
+	if (!node || !var)
+		return (0);
+
+	while (node)
 	{
-		free_array(path_array);
-		return (NULL);
-	}
-	token = strtok(user_input, "\n ");
-	if (path_check(token) == -1)
-	{
-		dir_path = find_path(path_array, token);
-		if (dir_path == NULL)
+		p = starts_with(node->str, var);
+		if (p && *p == '=')
 		{
-			free(commands);
-			free_array(path_array);
-			command_error(NAME, token);
-			exitcode = 127;
-			return (NULL);
+			info->env_changed = delete_node_at_index(&(info->env), i);
+			i = 0;
+			node = info->env;
+			continue;
 		}
-		else if (_strcmp("no_access", dir_path) == 0)
-		{
-			free(commands);
-			free_array(path_array);
-			access_error(NAME, token);
-			exitcode = 126;
-			return (NULL);
-		}
-		commands[0] = _strdup(dir_path);
-		free(dir_path);
+		node = node->next;
+		i++;
 	}
-	else
-		commands[0] = _strdup(token);
-	for (i = 1; i < args; i++)
+	return (info->env_changed);
+}
+
+/**
+ * _setenv - Initialize a new environment variable,
+ *             or modify an existing one
+ * @info: Structure containing potential arguments.
+ * @var: the string env var property
+ * @value: the string env var value
+ *
+ *  Return: Always 0
+ */
+int _setenv(info_t *info, char *var, char *value)
+{
+	char *buf = NULL;
+	list_t *node;
+	char *p;
+
+	if (!var || !value)
+		return (0);
+
+	buf = malloc(_strlen(var) + _strlen(value) + 2);
+	if (!buf)
+		return (1);
+	_strcpy(buf, var);
+	_strcat(buf, "=");
+	_strcat(buf, value);
+	node = info->env;
+	while (node)
 	{
-		token = strtok(0, "\n ");
-		commands[i] = _strdup(token);
+		p = starts_with(node->str, var);
+		if (p && *p == '=')
+		{
+			free(node->str);
+			node->str = buf;
+			info->env_changed = 1;
+			return (0);
+		}
+		node = node->next;
 	}
-	commands[i] = NULL;
-	return (commands);
+	add_node_end(&(info->env), buf, 0);
+	free(buf);
+	info->env_changed = 1;
+	return (0);
 }
