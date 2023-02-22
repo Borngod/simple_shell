@@ -11,7 +11,6 @@ int errorcount = 0;
  *
  * Return: 0 always (but program may exit early)
  */
-
 int main(__attribute__((unused)) int argc, char **argv, char **env)
 {
 	char *user_input = NULL;
