@@ -12,7 +12,6 @@
  * @NAME: name of program
  * @user_input: input string
  */
-
 void fork_wait_exec(char **commands, char **path_array, char **env,
 		    char *NAME, char *user_input)
 {
