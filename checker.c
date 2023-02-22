@@ -7,7 +7,6 @@
  *
  * Return: 0 if not exit, -1 if exit has an invalid status attached
  */
-
 int exit_check(char *user_input, char *NAME)
 {
 	int i, j, length, size, status;
