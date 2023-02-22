@@ -6,7 +6,6 @@
  *
  * Return: number of arguments
  */
-
 int arg_counter(char *user_input)
 {
 	int i, args, start;
