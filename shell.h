@@ -1,78 +1,57 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <errno.h>
-#include <dirent.h>
 #include <signal.h>
 
-/*constants*/
-#define EXTERNAL_COMMAND 1
-#define INTERNAL_COMMAND 2
-#define PATH_COMMAND 3
-#define INVALID_COMMAND -1
+extern int exitcode;
+extern int errorcount;
 
-#define min(x, y) (((x) < (y)) ? (x) : (y))
+/* check_helpers */
+int exit_check(char *user_input, char *NAME);
+int blank_check(char *user_input);
+int path_check(char *command);
+int env_check(char *user_input);
 
-/**
- *struct map - a struct that maps a command name to a function 
- *
- *@command_name: name of the command
- *@func: the function that executes the command
- */
- 
-typedef struct map
-{
-char *command_name;
-void (*func)(char **command);
-} function_map;
+/* error_helpers */
+void command_error(char *NAME, char *command);
+void exec_error(char *NAME, char *command);
+void access_error(char *NAME, char *command);
+void exit_error(char *NAME, char *user_input);
 
-extern char **environ;
-extern char *line;
-extern char **commands;
-extern char *shell_name;
-extern int status;
+/* fork_wait_exec */
+void fork_wait_exec(char **commands, char **path_array,
+		    char **env, char *NAME, char *user_input);
 
-/*helpers*/
-void print(char *, int);
-char **tokenizer(char *, char *);
-void remove_newline(char *);
-int _strlen(char *);
-void _strcpy(char *, char *);
+/* memory_helpers */
+void free_array(char **array);
 
-/*helpers2*/
-int _strcmp(char *, char *);
-char *_strcat(char *, char *);
-int _strspn(char *, char *);
-int _strcspn(char *, char *);
-char *_strchr(char *, char);
+/* number_helpers */
+int _atoi(char *s);
+void print_number(int n);
 
-/*helpers3*/
-char *_strtok_r(char *, char *, char **);
-int _atoi(char *);
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-void ctrl_c_handler(int);
-void remove_comment(char *);
+/* parse_input */
+int arg_counter(char *user_input);
+char **parse_input(char *user_input, char **path_array, char *NAME);
 
-/*utils*/
-int parse_command(char *);
-void execute_command(char **, int);
-char *check_path(char *);
-void (*get_func(char *))(char **);
-char *_getenv(char *);
+/* string_helpers */
+int _strlen(char *str);
+int _strcmp(char *s1, char *s2);
+char *_strdup(char *str);
+int _putchar(char c);
 
-/*built_in*/
-void env(char **);
-void quit(char **);
+/* env_helpers */
+int get_path_count(char *path);
+char **get_path_array(char **env);
+char *find_path(char **path_array, char *token);
+void print_env(char **env);
 
-/*main*/
-extern void non_interactive(void);
-extern void initializer(char **current_command, int type_command);
+/* splash screen */
+void display_splash_screen(FILE *file_ptr);
 
-#endif /*SHELL_H*/
+#endif
